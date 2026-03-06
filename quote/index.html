@@ -43,6 +43,57 @@
 
       <button type="submit">Submit</button>
     </form>
+
+    <div id="form-message" style="display:none; margin-top: 16px; padding: 12px; border-radius: 4px;"></div>
   </main>
+
+  <script>
+    document.querySelector('form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const messageDiv = document.getElementById('form-message');
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      const data = {
+        firstName: document.getElementById('first-name').value,
+        lastName: document.getElementById('last-name').value,
+        address: document.getElementById('address').value,
+        phone: document.getElementById('phone').value,
+        service: document.getElementById('service').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        messageDiv.style.display = 'block';
+        if (result.success) {
+          messageDiv.style.backgroundColor = '#d4edda';
+          messageDiv.style.color = '#155724';
+          messageDiv.textContent = result.message;
+          this.reset();
+        } else {
+          messageDiv.style.backgroundColor = '#f8d7da';
+          messageDiv.style.color = '#721c24';
+          messageDiv.textContent = result.message;
+        }
+      } catch (error) {
+        messageDiv.style.display = 'block';
+        messageDiv.style.backgroundColor = '#f8d7da';
+        messageDiv.style.color = '#721c24';
+        messageDiv.textContent = 'Could not connect to server. Please try again.';
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+    });
+  </script>
 </body>
 </html>
